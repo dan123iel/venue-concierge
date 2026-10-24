@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,900&family=Inter:ital,opsz,wght@0,14..32,400..800;1,14..32,400..800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 40 30% 96%;
+  --foreground: 220 15% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 15% 12%;
+  --muted: 40 20% 92%;
+  --muted-foreground: 220 10% 50%;
+  --border: 220 15% 88%;
+  --input: 220 15% 88%;
+  --primary: 262 68% 57%;
+  --primary-foreground: 0 0% 100%;
+  --magenta: 330 84% 60%;
+  --accent: 40 30% 92%;
+  --accent-foreground: 220 15% 12%;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: hsl(40, 15%, 82%);
+  font-family: 'Inter', sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 900;
+    font-variation-settings: 'wdth' 125;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+
+  .label-caps {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .bg-photo-overlay {
+    background: linear-gradient(to bottom, rgba(0,0,0,.35) 0%, transparent 50%, rgba(0,0,0,.5) 100%);
+  }
+
+  .bg-blob {
+    background: radial-gradient(circle, hsl(var(--magenta)) 0%, hsl(var(--primary)) 100%);
+  }
+
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--magenta)) 100%);
+  }
+
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 16px);
+  }
+
+  .text-magenta {
+    color: hsl(var(--magenta));
+  }
+}
