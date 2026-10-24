@@ -48,6 +48,7 @@ const TABS = [
 export function TabBar() {
   const { t } = useT();
   const location = useLocation();
+  if (location.pathname === "/welcome") return null;
 
   return (
     <nav className="pb-safe shrink-0 border-t-2 border-border bg-background">
