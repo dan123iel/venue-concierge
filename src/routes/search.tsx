@@ -77,8 +77,8 @@ function SearchPage() {
             <Label>{t("search.suggestions")}</Label>
             <div className="flex flex-wrap gap-2">
               {MOODS.map((m) => (
-                <Chip key={m} onClick={() => setQ(t(`mood.${m}`))}>
-                  {t(`mood.${m}`)}
+                <Chip key={m} onClick={() => setQ(t(`mood.${m}` as Parameters<typeof t>[0]))}>
+                  {t(`mood.${m}` as Parameters<typeof t>[0])}
                 </Chip>
               ))}
             </div>

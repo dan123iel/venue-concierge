@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CityChip } from "@/components/rinco/city-chip";
 import { Header, Page } from "@/components/rinco/shell";
 import { Chip, Headline, Img, Label, PrimaryButton, SampleBadge, SecondaryButton } from "@/components/rinco/ui";
-import { DIETARY, getCity, guides, MOODS, VIBES } from "@/lib/data";
+import { DIETARY, getCity, guides, MOODS, OCCASIONS, VIBES } from "@/lib/data";
 import { useT } from "@/lib/i18n";
 import { emptyResults, setResults, useAppState } from "@/lib/store";
 
@@ -260,6 +260,21 @@ function Discover() {
               }}
             >
               {t(`mood.${m}` as Parameters<typeof t>[0])}
+            </Chip>
+          ))}
+        </div>
+
+        <Label>{t("section.occasions")}</Label>
+        <div className="flex flex-wrap gap-2">
+          {OCCASIONS.map((o) => (
+            <Chip
+              key={o}
+              onClick={() => {
+                setResults(() => ({ ...emptyResults, occasion: o }));
+                nav({ to: "/discover/results" });
+              }}
+            >
+              {t(`occasion.${o}` as Parameters<typeof t>[0])}
             </Chip>
           ))}
         </div>

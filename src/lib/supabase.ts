@@ -67,6 +67,39 @@ function categoryToTheme(category: string, type: string): Place["theme"] {
   return "food";
 }
 
+function buildWhyText(row: VenueRow): string {
+  if (row.why_special) return row.why_special;
+
+  const parts: string[] = [];
+  const price = row.price_level_num ?? 2;
+  const vibes = (row.vibe ?? []).slice(0, 2);
+  const goodFor = (row.good_for ?? []).slice(0, 2);
+  const dietary = row.dietary_tags ?? [];
+
+  // Type + area sentence
+  parts.push(`${row.type} in ${row.district ?? row.area}.`);
+
+  // Vibe description
+  if (vibes.length > 0) {
+    parts.push(`Atmosphere: ${vibes.join(", ")}.`);
+  }
+
+  // Good for
+  if (goodFor.length > 0) {
+    parts.push(`Good for: ${goodFor.join(", ")}.`);
+  }
+
+  // Price signal
+  const priceWords = ["", "budget-friendly", "mid-range", "upscale", "fine dining"];
+  if (price >= 1 && price <= 4) parts.push(`Price range: ${priceWords[price]}.`);
+
+  // Dietary
+  if (dietary.includes("vegan") || row.vegan === "yes") parts.push("Vegan options available.");
+  else if (row.vegan === "possible") parts.push("Vegan options possible — check the menu.");
+
+  return parts.join(" ");
+}
+
 export function dbToPlace(row: VenueRow): Place {
   return {
     id: `sb-${row.id}`,
@@ -79,16 +112,20 @@ export function dbToPlace(row: VenueRow): Place {
     distanceKm: 0,
     price: Math.max(1, Math.min(4, row.price_level_num ?? 2)),
     image: row.photo_url ?? fallbackImage(row.category),
-    tags: [...(row.vibe ?? []).slice(0, 3), ...(row.dietary_tags ?? []).slice(0, 1)],
+    tags: [
+      ...(row.vibe ?? []).slice(0, 3),
+      ...(row.dietary_tags ?? []).slice(0, 1),
+      ...(row.good_for ?? []),
+    ],
     description: {
       en: row.description ?? "",
       de: row.description ?? "",
       es: row.description ?? "",
     },
     whyWeRecommend: {
-      en: row.why_special ?? "",
-      de: row.why_special ?? "",
-      es: row.why_special ?? "",
+      en: buildWhyText(row),
+      de: buildWhyText(row),
+      es: buildWhyText(row),
     },
     hours: [],
     vegan: row.vegan === "yes" || row.vegan === "possible",
@@ -104,6 +141,7 @@ export async function fetchPlaces(opts: {
   prices?: number[];
   vegan?: boolean;
   query?: string;
+  occasion?: string | null;
   limit?: number;
 }): Promise<Place[]> {
   let q = supabase
@@ -135,9 +173,24 @@ export async function fetchPlaces(opts: {
 
   let results = (data as VenueRow[]).map(dbToPlace);
 
-  // Client-side mood + query filtering (no DB column for these)
+  // Client-side mood + query + occasion filtering (no DB column for these)
   if (opts.mood) {
     results = results.filter((p) => p.moods.includes(opts.mood!));
+  }
+  if (opts.occasion) {
+    const OCCASION_MAP: Record<string, string[]> = {
+      date: ["date", "romantic", "anniversary", "intimate"],
+      solo: ["solo", "quiet", "work"],
+      friends: ["groups", "group", "friends", "lively"],
+      work: ["work", "quiet", "cozy"],
+      birthday: ["birthday", "groups", "celebration"],
+      family: ["family", "kid-friendly", "groups"],
+    };
+    const key = opts.occasion.toLowerCase();
+    const synonyms = OCCASION_MAP[key] ?? [key];
+    results = results.filter((p) =>
+      p.tags.some((tag) => synonyms.includes(tag.toLowerCase()))
+    );
   }
   if (opts.query) {
     const ql = opts.query.toLowerCase();

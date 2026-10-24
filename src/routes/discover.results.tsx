@@ -20,7 +20,7 @@ function ResultsPage() {
   const results = useAppState((s) => s.results);
 
   const { data: places = [], isLoading, isError } = useQuery({
-    queryKey: ["places", cityId, results.mood, results.category, results.prices, results.attrs, results.query],
+    queryKey: ["places", cityId, results.mood, results.category, results.prices, results.attrs, results.query, results.occasion],
     queryFn: () =>
       fetchPlaces({
         mood: results.mood ?? undefined,
@@ -28,6 +28,7 @@ function ResultsPage() {
         prices: results.prices,
         vegan: results.attrs.includes("Vegan"),
         query: results.query ?? undefined,
+        occasion: results.occasion,
         limit: 40,
       }),
     staleTime: 60_000,
@@ -41,6 +42,11 @@ function ResultsPage() {
         {results.mood && (
           <div className="flex flex-wrap gap-2">
             <Chip selected>{t(`mood.${results.mood}` as any)}</Chip>
+          </div>
+        )}
+        {results.occasion && (
+          <div className="flex flex-wrap gap-2">
+            <Chip selected>{t(`occasion.${results.occasion}` as any)}</Chip>
           </div>
         )}
         {isLoading ? (

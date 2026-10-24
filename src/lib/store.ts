@@ -15,6 +15,7 @@ export type ResultsState = {
   attrs: string[];
   vibes: string[];
   prices: number[];
+  occasion: string | null;
 };
 
 export type AppState = {
@@ -38,6 +39,7 @@ export const emptyResults: ResultsState = {
   attrs: [],
   vibes: [],
   prices: [],
+  occasion: null,
 };
 
 const DEFAULT: AppState = {

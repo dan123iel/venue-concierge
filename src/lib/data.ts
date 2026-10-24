@@ -61,6 +61,7 @@ export const cities: City[] = [
 ];
 
 export const MOODS = ["Relaxed", "Romantic", "Local", "Creative", "Foodie", "Nightlife", "Nature", "Culture"];
+export const OCCASIONS = ["Date", "Solo", "Friends", "Work", "Birthday", "Family"];
 
 export const DIETARY = ["Vegan", "Vegetarian", "Gluten-free", "Halal"];
 export const VIBES = ["Quiet", "Lively", "Cozy", "Trendy", "Romantic", "Local"];
