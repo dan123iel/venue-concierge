@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Header, Page } from "@/components/rinco/shell";
-import { Chip, EmptyState, Headline, Label, PlaceRow, SecondaryButton } from "@/components/rinco/ui";
-import { guides, MOODS, places } from "@/lib/data";
+import { Chip, EmptyState, Headline, PlaceRow, SecondaryButton } from "@/components/rinco/ui";
 import { useT } from "@/lib/i18n";
-import { filterPlaces } from "@/lib/search";
+import { fetchPlaces } from "@/lib/supabase";
 import { useAppState } from "@/lib/store";
 
 export const Route = createFileRoute("/discover/results")({
@@ -18,7 +18,20 @@ function ResultsPage() {
   const nav = useNavigate();
   const cityId = useAppState((s) => s.cityId);
   const results = useAppState((s) => s.results);
-  const filtered = filterPlaces(cityId, results);
+
+  const { data: places = [], isLoading, isError } = useQuery({
+    queryKey: ["places", cityId, results.mood, results.category, results.prices, results.attrs, results.query],
+    queryFn: () =>
+      fetchPlaces({
+        mood: results.mood ?? undefined,
+        category: results.category,
+        prices: results.prices,
+        vegan: results.attrs.includes("Vegan"),
+        query: results.query ?? undefined,
+        limit: 40,
+      }),
+    staleTime: 60_000,
+  });
 
   return (
     <>
@@ -30,7 +43,19 @@ function ResultsPage() {
             <Chip selected>{t(`mood.${results.mood}` as any)}</Chip>
           </div>
         )}
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-20 animate-pulse rounded-[16px] bg-muted" />
+            ))}
+          </div>
+        ) : isError ? (
+          <EmptyState title="Oops" text="Could not load places. Try again.">
+            <SecondaryButton onClick={() => nav({ to: "/discover" })}>
+              Back
+            </SecondaryButton>
+          </EmptyState>
+        ) : places.length === 0 ? (
           <EmptyState title={t("results.noResults")} text={t("results.noResultsText")}>
             <SecondaryButton onClick={() => nav({ to: "/discover" })}>
               {t("nf.back")}
@@ -38,7 +63,7 @@ function ResultsPage() {
           </EmptyState>
         ) : (
           <ul className="flex flex-col gap-3">
-            {filtered.map((p) => (
+            {places.map((p) => (
               <li key={p.id}>
                 <PlaceRow place={p} />
               </li>

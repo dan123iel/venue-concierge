@@ -1,8 +1,8 @@
-import { createFileRoute, notFound, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Clock, Heart, MapPin } from "lucide-react";
 import { Header, Page } from "@/components/rinco/shell";
 import {
-  AddButton,
   Chip,
   Headline,
   IconButton,
@@ -14,32 +14,53 @@ import {
   TrustRow,
 } from "@/components/rinco/ui";
 import { getCity, getPlace } from "@/lib/data";
+import { fetchPlaceById } from "@/lib/supabase";
 import { priceLabel, todayHours, isOpenNow } from "@/lib/format";
 import { useT } from "@/lib/i18n";
-import { addToPlan, showToast, toggleSaved, isSaved, getState, useAppState } from "@/lib/store";
+import { addToPlan, showToast, toggleSaved, isSaved, useAppState } from "@/lib/store";
 
 export const Route = createFileRoute("/place/$id")({
-  loader: ({ params }) => {
-    const p = getPlace(params.id);
-    if (!p) throw notFound();
-    return { name: p.name, description: p.description.en };
-  },
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: loaderData ? `${loaderData.name} – RINCO®` : "Place – RINCO®" },
-      { name: "description", content: loaderData?.description ?? "A curated place by RINCO." },
-    ],
+  head: () => ({
+    meta: [{ title: "Place – RINCO®" }],
   }),
   component: PlacePage,
 });
 
 function PlacePage() {
   const { id } = Route.useParams();
-  const { t, p, lang } = useT();
+  const { t, p } = useT();
   const router = useRouter();
   const nav = useNavigate();
-  const place = getPlace(id)!;
   const saved = useAppState((s) => isSaved(s, id));
+
+  // Supabase places have id "sb-123", local mock places use plain slugs
+  const isSupabase = id.startsWith("sb-");
+  const localPlace = isSupabase ? undefined : getPlace(id);
+
+  const { data: remotePlace } = useQuery({
+    queryKey: ["place", id],
+    queryFn: () => fetchPlaceById(id),
+    enabled: isSupabase,
+    staleTime: 300_000,
+  });
+
+  const place = localPlace ?? remotePlace;
+
+  if (!place) {
+    return (
+      <>
+        <Header />
+        <Page>
+          <div className="flex flex-col gap-3">
+            <div className="h-64 animate-pulse rounded-[16px] bg-muted" />
+            <div className="h-8 w-2/3 animate-pulse rounded bg-muted" />
+            <div className="h-4 animate-pulse rounded bg-muted" />
+          </div>
+        </Page>
+      </>
+    );
+  }
+
   const city = getCity(place.cityId);
   const open = isOpenNow(place, city.tz);
   const hoursToday = todayHours(place, city.tz);
@@ -123,7 +144,11 @@ function PlacePage() {
             {saved ? "♥ Saved" : t("place.save")}
           </SecondaryButton>
           <SecondaryButton
-            onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}`, "_blank", "noopener")}
+            onClick={() => window.open(
+              `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address)}`,
+              "_blank",
+              "noopener"
+            )}
             className="flex-1"
           >
             {t("place.route")}
