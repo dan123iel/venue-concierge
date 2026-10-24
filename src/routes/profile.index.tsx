@@ -122,7 +122,7 @@ function ProfilePage() {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-foreground truncate">
-                          {col.name || "Favorites"}
+                          {col.name || t("profile.favorites")}
                         </p>
                         <p className="text-[12px] text-muted-foreground">
                           {t("profile.placesCount", { n: col.placeIds.length })}

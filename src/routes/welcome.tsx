@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { setState } from "@/lib/store";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/welcome")({
   head: () => ({
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/welcome")({
 
 function Welcome() {
   const nav = useNavigate();
+  const { t } = useT();
   const finish = () => {
     setState(() => ({ onboarded: true, langChosen: true }));
     nav({ to: "/discover" });
@@ -65,7 +67,7 @@ function Welcome() {
           type="button"
           onClick={finish}
           className="mt-6 flex size-14 items-center justify-center rounded-full bg-gradient-primary shadow-lg ml-auto"
-          aria-label="Get started"
+          aria-label={t("welcome.start")}
         >
           <ArrowRight className="size-6 text-white" />
         </button>

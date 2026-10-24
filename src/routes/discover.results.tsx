@@ -50,9 +50,9 @@ function ResultsPage() {
             ))}
           </div>
         ) : isError ? (
-          <EmptyState title="Oops" text="Could not load places. Try again.">
+          <EmptyState title={t("results.noResults")} text={t("results.noResultsText")}>
             <SecondaryButton onClick={() => nav({ to: "/discover" })}>
-              Back
+              {t("nf.back")}
             </SecondaryButton>
           </EmptyState>
         ) : places.length === 0 ? (

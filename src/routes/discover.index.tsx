@@ -203,7 +203,7 @@ function Discover() {
               nav({ to: "/discover/results" });
             }}
           >
-            All
+            {t("search.scope.all")}
           </Chip>
           <Chip
             selected={results.category === "food"}

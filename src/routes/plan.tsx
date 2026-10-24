@@ -100,7 +100,7 @@ function PlanPage() {
           <Label>{t("plan.stops", { n: stops.length })}</Label>
           {totalKm > 0 && (
             <span className="text-[12px] text-muted-foreground">
-              ~{fmtKm(lang, totalKm)} {lang === "de" ? "gesamt" : lang === "es" ? "total" : "total"}
+              ~{fmtKm(lang, totalKm)} {t("plan.total")}
             </span>
           )}
         </div>

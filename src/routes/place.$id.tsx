@@ -141,7 +141,7 @@ function PlacePage() {
 
         <div className="flex gap-3">
           <SecondaryButton onClick={handleSave} className="flex-1">
-            {saved ? "♥ Saved" : t("place.save")}
+            {saved ? `♥ ${t("place.save")}` : t("place.save")}
           </SecondaryButton>
           <SecondaryButton
             onClick={() => window.open(
